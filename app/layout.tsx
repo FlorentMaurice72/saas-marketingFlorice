@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from "next"
+import "./globals.css"
+import { Providers } from "./providers"
 
 export const metadata: Metadata = {
   title: {
@@ -12,18 +13,19 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     title: "FlowMarketing — Marketing Automation SaaS",
-    description: "Créez des campagnes marketing performantes en quelques secondes.",
+    description:
+      "Créez des campagnes marketing performantes en quelques secondes.",
   },
-};
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr">
-      <body className="antialiased font-sans">{children}</body>
+      <body className="antialiased font-sans">
+        <Providers>{children}</Providers>
+      </body>
     </html>
-  );
+  )
 }
