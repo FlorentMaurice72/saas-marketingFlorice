@@ -102,9 +102,9 @@ export function CampaignForm({ onSuccess, onCancel }: CampaignFormProps) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onCancel()}
     >
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl shadow-slate-900/20 animate-in fade-in slide-in-from-bottom-4 duration-200">
+      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl shadow-slate-900/20 animate-in fade-in slide-in-from-bottom-4 duration-200 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 shrink-0">
           <div>
             <h2 className="text-base font-semibold text-slate-900">
               Nouvelle campagne
@@ -123,8 +123,8 @@ export function CampaignForm({ onSuccess, onCancel }: CampaignFormProps) {
         </div>
 
         {/* Form */}
-        <form ref={formRef} onSubmit={handleSubmit} noValidate>
-          <div className="space-y-5 px-6 py-5">
+        <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col overflow-hidden">
+          <div className="space-y-5 overflow-y-auto px-6 py-5">
             {/* Global error */}
             {state.error && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -273,7 +273,7 @@ export function CampaignForm({ onSuccess, onCancel }: CampaignFormProps) {
           </div>
 
           {/* Footer actions */}
-          <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
             <button
               type="button"
               onClick={onCancel}
