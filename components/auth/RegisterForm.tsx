@@ -32,22 +32,34 @@ export function RegisterForm() {
     setFieldErrors({})
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const result = await registerAction(formData)
+    try {
+      const formData = new FormData(e.currentTarget)
+      const result = await registerAction(formData)
 
-    if (result?.error) {
-      setError(result.error)
-      setLoading(false)
-      return
-    }
-    if (result?.fieldErrors) {
-      setFieldErrors(result.fieldErrors)
-      setLoading(false)
-      return
-    }
+      if (result?.fieldErrors) {
+        setFieldErrors(result.fieldErrors)
+        setLoading(false)
+        return
+      }
+      if (result?.error) {
+        setError(result.error)
+        setLoading(false)
+        return
+      }
 
-    // Success: registerAction calls redirect() — this line won't be reached
-    router.refresh()
+      // Success: redirect() was called server-side, refresh client
+      router.refresh()
+    } catch (err) {
+      // Catch unhandled server errors (Supabase down, etc.)
+      const msg = err instanceof Error ? err.message : String(err)
+      // NEXT_REDIRECT is a normal redirect, not an error
+      if (msg.includes("NEXT_REDIRECT")) {
+        router.refresh()
+        return
+      }
+      setError("Une erreur est survenue. Réessayez dans quelques instants.")
+      setLoading(false)
+    }
   }
 
   function fieldCls(field: string) {

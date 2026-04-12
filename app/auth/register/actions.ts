@@ -52,7 +52,12 @@ export async function registerAction(
 
   // ── Create user ────────────────────────────────────────────────────────────
   const hashedPassword = await hashPassword(password)
-  await createUser({ email, name, hashedPassword })
+  try {
+    await createUser({ email, name, hashedPassword })
+  } catch (err) {
+    console.error("[registerAction] createUser failed:", err)
+    return { error: "Impossible de créer le compte. Vérifiez votre connexion et réessayez." }
+  }
 
   // ── Redirect to login with success flag ───────────────────────────────────
   redirect("/auth/login?registered=true")
