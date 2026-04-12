@@ -1,3 +1,5 @@
+import { createServerSupabaseClient } from "@/lib/supabase/server"
+import type { Tables } from "@/types/database"
 import type { PlanType } from "@/types"
 
 // ─── Domain types ──────────────────────────────────────────────────────────────
@@ -13,53 +15,95 @@ export interface StoredUser {
 
 export type PublicUser = Omit<StoredUser, "hashedPassword">
 
-// ─── In-memory store (MVP) ─────────────────────────────────────────────────────
-//
-// ⚠️  MIGRATION PATH — replace each function body with Prisma / Drizzle calls:
-//
-//   getUserByEmail  → db.user.findUnique({ where: { email } })
-//   getUserById     → db.user.findUnique({ where: { id } })
-//   createUser      → db.user.create({ data })
-//   userExists      → !!(await db.user.count({ where: { email } }))
-//
-// The function signatures are intentionally identical to what Prisma would use,
-// so the swap is a one-line change per function.
-//
-// ──────────────────────────────────────────────────────────────────────────────
+// ─── Mapping helper ───────────────────────────────────────────────────────────
 
-const store = new Map<string, StoredUser>()
+type DbUser = Tables<"users">
+
+function toStoredUser(row: DbUser): StoredUser {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name ?? "",
+    hashedPassword: row.hashed_password ?? "",
+    plan: (row.plan as PlanType) ?? "free",
+    createdAt: new Date(row.created_at),
+  }
+}
+
+// ─── Queries ──────────────────────────────────────────────────────────────────
 
 export async function getUserByEmail(
   email: string
 ): Promise<StoredUser | null> {
-  // Future: return db.user.findUnique({ where: { email: email.toLowerCase() } })
-  return store.get(email.toLowerCase()) ?? null
+  const supabase = createServerSupabaseClient()
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email.toLowerCase())
+    .maybeSingle()
+
+  if (error) {
+    console.error("[users.getUserByEmail]", error)
+    return null
+  }
+  return data ? toStoredUser(data) : null
 }
 
 export async function getUserById(id: string): Promise<StoredUser | null> {
-  // Future: return db.user.findUnique({ where: { id } })
-  for (const user of store.values()) {
-    if (user.id === id) return user
+  const supabase = createServerSupabaseClient()
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle()
+
+  if (error) {
+    console.error("[users.getUserById]", error)
+    return null
   }
-  return null
+  return data ? toStoredUser(data) : null
 }
+
+export async function userExists(email: string): Promise<boolean> {
+  const supabase = createServerSupabaseClient()
+  const { data, error } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .maybeSingle()
+
+  if (error) {
+    console.error("[users.userExists]", error)
+    return false
+  }
+  return data !== null
+}
+
+// ─── Mutations ────────────────────────────────────────────────────────────────
 
 export async function createUser(data: {
   email: string
   name: string
   hashedPassword: string
 }): Promise<PublicUser> {
-  // Future: return db.user.create({ data: { ...data, plan: "free" } })
-  const user: StoredUser = {
-    id: crypto.randomUUID(),
-    email: data.email.toLowerCase(),
-    name: data.name,
-    hashedPassword: data.hashedPassword,
-    plan: "free",
-    createdAt: new Date(),
+  const supabase = createServerSupabaseClient()
+  const { data: row, error } = await supabase
+    .from("users")
+    .insert({
+      email: data.email.toLowerCase(),
+      name: data.name,
+      hashed_password: data.hashedPassword,
+      plan: "free",
+    })
+    .select()
+    .single()
+
+  if (error || !row) {
+    console.error("[users.createUser]", error)
+    throw new Error("Impossible de créer l'utilisateur.")
   }
-  store.set(user.email, user)
-  // Return without hashedPassword
+
+  const user = toStoredUser(row)
   return {
     id: user.id,
     email: user.email,
@@ -67,9 +111,4 @@ export async function createUser(data: {
     plan: user.plan,
     createdAt: user.createdAt,
   }
-}
-
-export async function userExists(email: string): Promise<boolean> {
-  // Future: return !!(await db.user.count({ where: { email: email.toLowerCase() } }))
-  return store.has(email.toLowerCase())
 }
