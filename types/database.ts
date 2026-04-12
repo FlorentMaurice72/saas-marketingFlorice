@@ -27,26 +27,29 @@ export interface Database {
         Row: {
           id: string
           email: string
-          name: string
-          hashed_password: string
+          name: string | null
+          hashed_password: string | null
           plan: "free" | "starter" | "pro" | "enterprise"
           created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
           email: string
-          name: string
-          hashed_password: string
+          name?: string | null
+          hashed_password?: string | null
           plan?: "free" | "starter" | "pro" | "enterprise"
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
           email?: string
-          name?: string
-          hashed_password?: string
+          name?: string | null
+          hashed_password?: string | null
           plan?: "free" | "starter" | "pro" | "enterprise"
           created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
