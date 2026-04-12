@@ -1,9 +1,10 @@
 import { z } from "zod"
 
 export const generateCampaignSchema = z.object({
-  type: z.enum(["email", "ads", "social"], {
-    error: () => "Type invalide : choisissez email, ads ou social",
-  }),
+  template: z.enum(
+    ["prospection_email", "product_launch", "facebook_ads", "linkedin_post", "retargeting"],
+    { error: () => "Choisissez un template" }
+  ),
 
   productDescription: z
     .string()
@@ -17,8 +18,16 @@ export const generateCampaignSchema = z.object({
     .max(200, "Audience trop longue (max 200 caractères)")
     .trim(),
 
-  goal: z.enum(["conversion", "traffic", "awareness"], {
-    error: () => "Objectif invalide",
+  goal: z.enum(["conversion", "engagement", "traffic", "vente"], {
+    error: () => "Choisissez un objectif",
+  }),
+
+  tone: z.enum(["professionnel", "direct", "premium", "agressif", "fun"], {
+    error: () => "Choisissez un ton",
+  }),
+
+  audienceLevel: z.enum(["debutant", "expert", "entreprise", "niche"], {
+    error: () => "Choisissez un niveau d'audience",
   }),
 })
 

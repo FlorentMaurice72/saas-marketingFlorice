@@ -14,7 +14,9 @@ import {
 } from "@/lib/validation/campaign.schema"
 import { generateCampaignSchema } from "@/lib/validation/ai.schema"
 import { generateCampaignAI } from "@/lib/ai/generateCampaign"
+import { TEMPLATE_TO_TYPE } from "@/lib/ai/prompts"
 import type { AIGeneratedCampaign } from "@/lib/ai/prompts"
+import type { CampaignType } from "@/types/campaign"
 
 // ─── Shared result type ───────────────────────────────────────────────────────
 
@@ -106,6 +108,7 @@ export interface GenerateActionResult {
   error?: string
   fieldErrors?: Record<string, string>
   data?: AIGeneratedCampaign
+  campaignType?: CampaignType
 }
 
 /**
@@ -118,10 +121,12 @@ export async function generateCampaignAction(
   await requireUser()
 
   const raw = {
-    type: formData.get("type"),
+    template: formData.get("template"),
     productDescription: formData.get("productDescription"),
     targetAudience: formData.get("targetAudience"),
     goal: formData.get("goal"),
+    tone: formData.get("tone"),
+    audienceLevel: formData.get("audienceLevel"),
   }
 
   const parsed = generateCampaignSchema.safeParse(raw)
@@ -137,5 +142,9 @@ export async function generateCampaignAction(
   const result = await generateCampaignAI(parsed.data)
   if (!result.success) return { error: result.error }
 
-  return { success: true, data: result.data }
+  return {
+    success: true,
+    data: result.data,
+    campaignType: TEMPLATE_TO_TYPE[parsed.data.template],
+  }
 }
