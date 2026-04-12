@@ -12,6 +12,9 @@ import {
   deleteCampaignSchema,
   toggleStatusSchema,
 } from "@/lib/validation/campaign.schema"
+import { generateCampaignSchema } from "@/lib/validation/ai.schema"
+import { generateCampaignAI } from "@/lib/ai/generateCampaign"
+import type { AIGeneratedCampaign } from "@/lib/ai/prompts"
 
 // ─── Shared result type ───────────────────────────────────────────────────────
 
@@ -23,21 +26,11 @@ export interface ActionResult {
 
 // ─── createCampaignAction ─────────────────────────────────────────────────────
 
-/**
- * Creates a new campaign scoped to the current authenticated user.
- *
- * Security:
- *  1. requireUser() — aborts if no valid session (redirects to /auth/login)
- *  2. Zod validation — validates all inputs before touching the DB
- *  3. user_id injected from session — client can never forge ownership
- */
 export async function createCampaignAction(
   formData: FormData
 ): Promise<ActionResult> {
-  // ── Auth guard ───────────────────────────────────────────────────────────
   const user = await requireUser()
 
-  // ── Input extraction ──────────────────────────────────────────────────────
   const raw = {
     name: formData.get("name"),
     type: formData.get("type"),
@@ -45,7 +38,6 @@ export async function createCampaignAction(
     status: formData.get("status") || "draft",
   }
 
-  // ── Zod validation ────────────────────────────────────────────────────────
   const parsed = createCampaignSchema.safeParse(raw)
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {}
@@ -56,7 +48,6 @@ export async function createCampaignAction(
     return { fieldErrors }
   }
 
-  // ── DB write — user_id from session, never from client ────────────────────
   const result = await createCampaign({
     ...parsed.data,
     content: parsed.data.content ?? null,
@@ -65,16 +56,12 @@ export async function createCampaignAction(
 
   if (!result.success) return { error: result.error }
 
-  // ── Invalidate cache so the list refreshes ────────────────────────────────
   revalidatePath("/campaigns")
   return { success: true }
 }
 
 // ─── deleteCampaignAction ─────────────────────────────────────────────────────
 
-/**
- * Deletes a campaign — verifies ownership in the DB query (double-check).
- */
 export async function deleteCampaignAction(
   id: string
 ): Promise<ActionResult> {
@@ -92,9 +79,6 @@ export async function deleteCampaignAction(
 
 // ─── toggleCampaignStatusAction ───────────────────────────────────────────────
 
-/**
- * Toggles draft ↔ published — verifies ownership in the DB query.
- */
 export async function toggleCampaignStatusAction(
   id: string,
   currentStatus: "draft" | "published"
@@ -113,4 +97,45 @@ export async function toggleCampaignStatusAction(
 
   revalidatePath("/campaigns")
   return { success: true }
+}
+
+// ─── generateCampaignAction ───────────────────────────────────────────────────
+
+export interface GenerateActionResult {
+  success?: boolean
+  error?: string
+  fieldErrors?: Record<string, string>
+  data?: AIGeneratedCampaign
+}
+
+/**
+ * Generates a marketing campaign using the Claude AI engine.
+ * Secured: requires authenticated user.
+ */
+export async function generateCampaignAction(
+  formData: FormData
+): Promise<GenerateActionResult> {
+  await requireUser()
+
+  const raw = {
+    type: formData.get("type"),
+    productDescription: formData.get("productDescription"),
+    targetAudience: formData.get("targetAudience"),
+    goal: formData.get("goal"),
+  }
+
+  const parsed = generateCampaignSchema.safeParse(raw)
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {}
+    for (const issue of parsed.error.issues) {
+      const field = issue.path[0] as string
+      if (!fieldErrors[field]) fieldErrors[field] = issue.message
+    }
+    return { fieldErrors }
+  }
+
+  const result = await generateCampaignAI(parsed.data)
+  if (!result.success) return { error: result.error }
+
+  return { success: true, data: result.data }
 }
