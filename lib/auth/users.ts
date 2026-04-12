@@ -90,6 +90,7 @@ export async function createUser(data: {
   const { data: row, error } = await supabase
     .from("users")
     .insert({
+      id: crypto.randomUUID(), // provide explicitly — avoids uuid_generate_v4() dependency
       email: data.email.toLowerCase(),
       name: data.name,
       hashed_password: data.hashedPassword,
@@ -99,8 +100,8 @@ export async function createUser(data: {
     .single()
 
   if (error || !row) {
-    console.error("[users.createUser]", error)
-    throw new Error("Impossible de créer l'utilisateur.")
+    console.error("[users.createUser] Supabase error:", JSON.stringify(error))
+    throw new Error(`DB insert failed: ${error?.message ?? "no row returned"}`)
   }
 
   const user = toStoredUser(row)
