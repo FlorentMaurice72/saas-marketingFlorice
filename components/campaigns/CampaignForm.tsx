@@ -70,19 +70,26 @@ export function CampaignForm({ onSuccess, onCancel }: CampaignFormProps) {
     setState({})
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    formData.set("type", selectedType)
+    try {
+      const formData = new FormData(e.currentTarget)
+      formData.set("type", selectedType)
 
-    const result = await createCampaignAction(formData)
-    setLoading(false)
+      const result = await createCampaignAction(formData)
+      setLoading(false)
 
-    if (result.success) {
-      formRef.current?.reset()
-      setCharCount(0)
-      onSuccess()
-      return
+      if (result.success) {
+        formRef.current?.reset()
+        setCharCount(0)
+        onSuccess()
+        return
+      }
+      setState(result)
+    } catch (err) {
+      setLoading(false)
+      const msg = err instanceof Error ? err.message : String(err)
+      if (msg.includes("NEXT_REDIRECT")) { onSuccess(); return }
+      setState({ error: "Une erreur est survenue. Réessayez." })
     }
-    setState(result)
   }
 
   function fieldError(field: string) {

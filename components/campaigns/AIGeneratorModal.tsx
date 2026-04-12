@@ -176,38 +176,53 @@ export function AIGeneratorModal({ onSaved, onClose }: AIGeneratorModalProps) {
     setFieldErrors({})
     setGenerating(true)
 
-    const formData = new FormData(e.currentTarget)
-    formData.set("type", selectedType)
-    formData.set("goal", selectedGoal)
+    try {
+      const formData = new FormData(e.currentTarget)
+      formData.set("type", selectedType)
+      formData.set("goal", selectedGoal)
 
-    const res = await generateCampaignAction(formData)
-    setGenerating(false)
+      const res = await generateCampaignAction(formData)
+      setGenerating(false)
 
-    if (res.fieldErrors) { setFieldErrors(res.fieldErrors); return }
-    if (res.error) { setError(res.error); return }
-    if (res.data) setResult(res.data)
+      if (res.fieldErrors) { setFieldErrors(res.fieldErrors); return }
+      if (res.error) { setError(res.error); return }
+      if (res.data) setResult(res.data)
+    } catch (err) {
+      setGenerating(false)
+      const msg = err instanceof Error ? err.message : String(err)
+      if (!msg.includes("NEXT_REDIRECT")) {
+        setError("Une erreur est survenue. Réessayez.")
+      }
+    }
   }
 
   async function handleSave() {
     if (!result) return
     setSaving(true)
 
-    const formData = new FormData()
-    formData.set("name", result.title)
-    formData.set("type", selectedType)
-    formData.set(
-      "content",
-      `${result.hook}\n\n${result.body}\n\nCTA : ${result.call_to_action}`
-    )
-    formData.set("status", "draft")
+    try {
+      const formData = new FormData()
+      formData.set("name", result.title)
+      formData.set("type", selectedType)
+      formData.set(
+        "content",
+        `${result.hook}\n\n${result.body}\n\nCTA : ${result.call_to_action}`
+      )
+      formData.set("status", "draft")
 
-    const res = await createCampaignAction(formData)
-    setSaving(false)
+      const res = await createCampaignAction(formData)
+      setSaving(false)
 
-    if (res.success) {
-      onSaved()
-    } else {
-      setError(res.error ?? "Erreur lors de la sauvegarde.")
+      if (res.success) {
+        onSaved()
+      } else {
+        setError(res.error ?? "Erreur lors de la sauvegarde.")
+      }
+    } catch (err) {
+      setSaving(false)
+      const msg = err instanceof Error ? err.message : String(err)
+      if (msg.includes("NEXT_REDIRECT")) { onSaved(); return }
+      setError("Erreur lors de la sauvegarde. Réessayez.")
     }
   }
 
