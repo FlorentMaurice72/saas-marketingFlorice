@@ -111,7 +111,7 @@ export async function generateCampaignAI(
     const data = extractJSON(text)
     return { success: true, data }
   } catch (err) {
-    console.error("[generateCampaignAI]", err)
+    console.error("[generateCampaignAI] error:", err)
 
     if (err instanceof Error) {
       if (err.name === "TimeoutError" || err.message.includes("timeout")) {
@@ -123,7 +123,7 @@ export async function generateCampaignAI(
       if (err.message.includes("ANTHROPIC_API_KEY")) {
         return {
           success: false,
-          error: "Clé API manquante. Contactez l'administrateur.",
+          error: "Clé API manquante. Vérifiez ANTHROPIC_API_KEY dans Vercel.",
         }
       }
       if (err.message.includes("JSON")) {
@@ -132,11 +132,16 @@ export async function generateCampaignAI(
           error: "Erreur de format dans la réponse IA. Réessayez.",
         }
       }
+      // Surface the actual error message to help diagnose
+      return {
+        success: false,
+        error: `Erreur IA : ${err.message}`,
+      }
     }
 
     return {
       success: false,
-      error: "Une erreur est survenue lors de la génération. Réessayez.",
+      error: `Erreur inconnue : ${String(err)}`,
     }
   }
 }
