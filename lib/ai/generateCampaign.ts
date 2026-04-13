@@ -126,13 +126,24 @@ export async function generateCampaignAI(
           error: "Clé API manquante. Vérifiez ANTHROPIC_API_KEY dans Vercel.",
         }
       }
+      if (err.message.includes("credit balance is too low") || err.message.includes("credit")) {
+        return {
+          success: false,
+          error: "Crédits Anthropic épuisés. Rechargez votre compte sur console.anthropic.com → Plans & Billing.",
+        }
+      }
+      if (err.message.includes("401") || err.message.includes("invalid_api_key")) {
+        return {
+          success: false,
+          error: "Clé API Anthropic invalide. Vérifiez ANTHROPIC_API_KEY dans Vercel.",
+        }
+      }
       if (err.message.includes("JSON")) {
         return {
           success: false,
           error: "Erreur de format dans la réponse IA. Réessayez.",
         }
       }
-      // Surface the actual error message to help diagnose
       return {
         success: false,
         error: `Erreur IA : ${err.message}`,
