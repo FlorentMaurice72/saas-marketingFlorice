@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, Box } from "lucide-react"
+import Image from "next/image"
+import { Menu, X } from "lucide-react"
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -11,9 +12,7 @@ export function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-            <Box className="h-4 w-4 text-white" />
-          </div>
+          <Image src="/logo.svg" alt="BoxManager" width={32} height={32} className="rounded-lg" />
           <span className="text-base font-bold text-zinc-50">BoxManager</span>
         </Link>
 

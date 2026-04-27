@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Box } from "lucide-react"
+import Image from "next/image"
 
 export function Footer() {
   return (
@@ -7,9 +7,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col items-center justify-between gap-5 sm:flex-row">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500">
-              <Box className="h-3.5 w-3.5 text-white" />
-            </div>
+            <Image src="/logo.svg" alt="BoxManager" width={28} height={28} className="rounded-lg" />
             <span className="text-sm font-bold text-zinc-100">BoxManager</span>
           </Link>
 
