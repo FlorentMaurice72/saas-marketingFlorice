@@ -6,28 +6,28 @@ import { cn } from "@/lib/utils/cn"
 
 const FAQS = [
   {
-    q: "Est-ce que BoxManager fonctionne pour tout type de boxes ?",
-    a: "Oui. BoxManager est conçu pour tous les types d'espaces de stockage locatifs : boxes individuels, garde-meubles, entrepôts divisés en lots. Si vous avez des locataires qui paient un loyer mensuel pour un espace de stockage, BoxManager est fait pour vous.",
+    q: "Est-ce que BoxManager est adapté si j'ai peu de locataires ?",
+    a: "Oui. Le plan gratuit est conçu pour les petits parcs jusqu'à 10 boxes. Dès le premier locataire, BoxManager vous fait gagner du temps sur le suivi des loyers et les relances.",
   },
   {
-    q: "Combien de temps pour tout configurer ?",
-    a: "La plupart de nos utilisateurs sont opérationnels en moins d'une heure. L'ajout des boxes et des locataires est guidé pas à pas. Si vous avez une liste Excel, on peut vous aider à importer vos données.",
+    q: "Comment fonctionne l'import des loyers ?",
+    a: "Vous exportez votre relevé bancaire au format CSV depuis votre banque, puis vous le glissez dans BoxManager. Le logiciel identifie automatiquement les virements de vos locataires et met à jour votre tableau de bord.",
   },
   {
-    q: "Les relances automatiques, comment ça marche exactement ?",
-    a: "BoxManager surveille les dates d'échéance de chaque locataire. Si un loyer n'est pas marqué comme reçu à J+3, un email de rappel est envoyé automatiquement. Puis à J+7 et J+15. Vous pouvez personnaliser les délais et les messages.",
+    q: "Est-ce que je peux tester gratuitement ?",
+    a: "Oui. Le plan gratuit est disponible sans limite de durée pour jusqu'à 10 boxes. Le plan Pro inclut 14 jours d'essai offerts, sans carte bancaire requise.",
   },
   {
-    q: "Puis-je essayer avant de payer ?",
-    a: "Oui ! Le plan Gratuit vous permet de gérer jusqu'à 10 boxes sans limite de durée et sans carte bancaire. Vous pouvez passer à l'Essentiel ou au Pro à tout moment.",
+    q: "Est-ce sécurisé ?",
+    a: "Toutes vos données sont chiffrées au repos et en transit. BoxManager est hébergé en France et respecte le RGPD. Vous restez propriétaire de vos données et pouvez les exporter à tout moment.",
   },
   {
-    q: "Mes données sont-elles sécurisées ?",
-    a: "Toutes vos données sont hébergées sur des serveurs européens, chiffrées au repos et en transit. BoxManager respecte le RGPD. Vous restez propriétaire de vos données et pouvez les exporter à tout moment.",
+    q: "Est-ce que BoxManager remplace mon comptable ?",
+    a: "Non. BoxManager vous aide à avoir une gestion propre et à produire des exports comptables clairs. Votre comptable reste indispensable pour votre déclaration — BoxManager lui mâche simplement le travail.",
   },
   {
-    q: "Que se passe-t-il si je résilie ?",
-    a: "Vous pouvez résilier à tout moment depuis votre espace. Vous conservez l'accès jusqu'à la fin de votre période payée, et vous pouvez exporter toutes vos données avant de partir. Aucune pénalité.",
+    q: "Est-ce compliqué à utiliser ?",
+    a: "Non. La prise en main prend moins de 10 minutes. L'interface est pensée pour des propriétaires, pas pour des comptables ou des développeurs. Si vous savez utiliser Excel, vous saurez utiliser BoxManager.",
   },
 ]
 
@@ -35,36 +35,38 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(null)
 
   return (
-    <section id="faq" className="bg-slate-50 py-20 sm:py-28">
+    <section id="faq" className="bg-zinc-900 py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <div className="text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-blue-600">FAQ</p>
-          <h2 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-orange-500">
+            FAQ
+          </p>
+          <h2 className="text-3xl font-extrabold text-zinc-50 sm:text-4xl">
             Questions fréquentes
           </h2>
         </div>
 
-        <div className="mt-10 space-y-3">
+        <div className="mt-10 space-y-2">
           {FAQS.map((faq, i) => (
             <div
               key={i}
-              className="overflow-hidden rounded-xl border border-slate-200 bg-white"
+              className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950"
             >
               <button
                 onClick={() => setOpen(open === i ? null : i)}
                 className="flex w-full items-center justify-between px-5 py-4 text-left"
               >
-                <span className="text-sm font-semibold text-slate-900">{faq.q}</span>
+                <span className="text-sm font-semibold text-zinc-100">{faq.q}</span>
                 <ChevronDown
                   className={cn(
-                    "ml-4 h-4 w-4 shrink-0 text-slate-400 transition-transform",
-                    open === i && "rotate-180"
+                    "ml-4 h-4 w-4 shrink-0 text-zinc-500 transition-transform",
+                    open === i && "rotate-180 text-orange-500"
                   )}
                 />
               </button>
               {open === i && (
-                <div className="border-t border-slate-100 px-5 pb-4 pt-3">
-                  <p className="text-sm leading-relaxed text-slate-600">{faq.a}</p>
+                <div className="border-t border-zinc-800 px-5 pb-4 pt-3">
+                  <p className="text-sm leading-relaxed text-zinc-400">{faq.a}</p>
                 </div>
               )}
             </div>

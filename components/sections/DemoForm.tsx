@@ -5,10 +5,10 @@ import { Loader2, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils/cn"
 
 const inputCls = cn(
-  "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900",
-  "placeholder:text-slate-400 transition-colors",
-  "focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
-  "disabled:bg-slate-50 disabled:text-slate-400"
+  "w-full rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-100",
+  "placeholder:text-zinc-500 transition-colors",
+  "focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20",
+  "disabled:opacity-50"
 )
 
 const BOX_RANGES = [
@@ -42,20 +42,18 @@ export function DemoForm() {
     setError(null)
 
     try {
-      // 1. Save to Supabase via secure server route (SUPABASE_SERVICE_ROLE_KEY never exposed)
-      const supabaseRes = await fetch("/api/demo-request", {
+      const res = await fetch("/api/demo-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       })
-      const supabaseData = await supabaseRes.json()
+      const data = await res.json()
 
-      if (!supabaseData.success) {
-        setError(supabaseData.error ?? "Une erreur est survenue.")
+      if (!data.success) {
+        setError(data.error ?? "Une erreur est survenue.")
         return
       }
 
-      // 2. Send to Formspree for email notification (fire-and-forget)
       if (FORMSPREE_URL) {
         fetch(FORMSPREE_URL, {
           method: "POST",
@@ -67,9 +65,7 @@ export function DemoForm() {
             nombre_boxes: form.nombre_boxes || "—",
             message: form.message || "—",
           }),
-        }).catch(() => {
-          // Formspree failure is non-blocking — lead is already saved in Supabase
-        })
+        }).catch(() => {})
       }
 
       setSuccess(true)
@@ -81,45 +77,43 @@ export function DemoForm() {
   }
 
   return (
-    <section id="demo" className="bg-blue-600 py-20 sm:py-28">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6">
+    <section id="demo" className="bg-zinc-900 py-20 sm:py-28">
+      <div className="mx-auto max-w-xl px-4 sm:px-6">
         <div className="text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-blue-200">
-            Demander une démo
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-orange-500">
+            Contact
           </p>
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-            Voyez BoxManager en action
+          <h2 className="text-3xl font-extrabold text-zinc-50 sm:text-4xl">
+            Prendre contact
           </h2>
-          <p className="mt-4 text-lg text-blue-100">
-            Remplissez ce formulaire et nous vous recontactons sous 24h pour une
-            démonstration personnalisée — gratuite et sans engagement.
+          <p className="mt-4 text-zinc-400">
+            Remplissez ce formulaire et nous vous recontactons sous 24h.
           </p>
         </div>
 
         {success ? (
-          <div className="mt-10 rounded-2xl bg-white p-8 text-center shadow-xl">
-            <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-            <h3 className="mt-4 text-lg font-bold text-slate-900">Demande reçue !</h3>
-            <p className="mt-2 text-sm text-slate-600">
-              Nous vous contacterons sous 24h pour organiser votre démonstration.
+          <div className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-8 text-center">
+            <CheckCircle className="mx-auto h-12 w-12 text-orange-500" />
+            <h3 className="mt-4 text-lg font-bold text-zinc-100">Message reçu !</h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              Nous vous répondrons sous 24h.
             </p>
           </div>
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="mt-10 rounded-2xl bg-white p-6 shadow-xl sm:p-8"
+            className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:p-8"
           >
             {error && (
-              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                 {error}
               </div>
             )}
 
-            {/* Row 1: Nom + Email */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Nom <span className="text-red-400">*</span>
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+                  Nom <span className="text-orange-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -132,8 +126,8 @@ export function DemoForm() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Email <span className="text-red-400">*</span>
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+                  Email <span className="text-orange-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -147,12 +141,10 @@ export function DemoForm() {
               </div>
             </div>
 
-            {/* Row 2: Téléphone + Nombre de boxes */}
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Téléphone{" "}
-                  <span className="text-xs font-normal text-slate-400">(optionnel)</span>
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+                  Téléphone <span className="text-zinc-600">(optionnel)</span>
                 </label>
                 <input
                   type="tel"
@@ -164,15 +156,14 @@ export function DemoForm() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Nombre de boxes{" "}
-                  <span className="text-xs font-normal text-slate-400">(optionnel)</span>
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+                  Nombre de boxes
                 </label>
                 <select
                   value={form.nombre_boxes}
                   onChange={(e) => set("nombre_boxes", e.target.value)}
                   disabled={loading}
-                  className={inputCls}
+                  className={cn(inputCls, "bg-zinc-800")}
                 >
                   <option value="">Choisissez...</option>
                   {BOX_RANGES.map((r) => (
@@ -182,17 +173,15 @@ export function DemoForm() {
               </div>
             </div>
 
-            {/* Row 3: Message */}
             <div className="mt-4">
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                Message{" "}
-                <span className="text-xs font-normal text-slate-400">(optionnel)</span>
+              <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+                Message <span className="text-zinc-600">(optionnel)</span>
               </label>
               <textarea
                 rows={3}
                 value={form.message}
                 onChange={(e) => set("message", e.target.value)}
-                placeholder="Décrivez votre situation, vos questions ou besoins spécifiques…"
+                placeholder="Décrivez votre situation ou vos questions…"
                 disabled={loading}
                 className={cn(inputCls, "resize-none")}
               />
@@ -201,13 +190,13 @@ export function DemoForm() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-all disabled:opacity-60"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 hover:bg-orange-600 transition-all disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading ? "Envoi en cours…" : "Demander ma démo gratuite"}
+              {loading ? "Envoi en cours…" : "Envoyer ma demande"}
             </button>
 
-            <p className="mt-3 text-center text-xs text-slate-400">
+            <p className="mt-3 text-center text-xs text-zinc-600">
               Réponse sous 24h — Aucun engagement
             </p>
           </form>
