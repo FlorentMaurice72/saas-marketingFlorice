@@ -9,11 +9,14 @@ import { Pricing } from "@/components/sections/Pricing"
 import { DemoForm } from "@/components/sections/DemoForm"
 import { FAQ } from "@/components/sections/FAQ"
 import { CTAFinal } from "@/components/sections/CTAFinal"
+import { SeoText } from "@/components/sections/SeoText"
 import { Footer } from "@/components/sections/Footer"
+import { JsonLd } from "@/components/seo/JsonLd"
 
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950">
+      <JsonLd />
       <Navbar />
       <main>
         <Hero />
@@ -26,6 +29,7 @@ export default function HomePage() {
         <DemoForm />
         <FAQ />
         <CTAFinal />
+        <SeoText />
       </main>
       <Footer />
     </div>
