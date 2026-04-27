@@ -1,14 +1,3 @@
-/**
- * Database type definitions — mirrors the Supabase schema exactly.
- *
- * ─── How to keep this in sync ────────────────────────────────────────────────
- * After any schema change, regenerate with:
- *   npx supabase gen types typescript --project-id <project-id> > types/database.ts
- *
- * Until then, update manually to match supabase/schema.sql.
- * ──────────────────────────────────────────────────────────────────────────────
- */
-
 export type Json =
   | string
   | number
@@ -20,81 +9,65 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      // ── users ──────────────────────────────────────────────────────────────
-      // Custom users table — stores credentials for our NextAuth-based auth.
-      // Migration path: replace with Supabase Auth (auth.users) when ready.
-      users: {
+      demo_requests: {
         Row: {
           id: string
+          name: string
           email: string
-          name: string | null
-          hashed_password: string | null
-          plan: "free" | "starter" | "pro" | "enterprise"
+          company: string | null
+          boxes_count: string | null
+          message: string | null
           created_at: string
-          updated_at: string
         }
         Insert: {
           id?: string
+          name: string
           email: string
-          name?: string | null
-          hashed_password?: string | null
-          plan?: "free" | "starter" | "pro" | "enterprise"
+          company?: string | null
+          boxes_count?: string | null
+          message?: string | null
           created_at?: string
-          updated_at?: string
         }
         Update: {
-          id?: string
+          name?: string
           email?: string
-          name?: string | null
-          hashed_password?: string | null
-          plan?: "free" | "starter" | "pro" | "enterprise"
-          created_at?: string
-          updated_at?: string
+          company?: string | null
+          boxes_count?: string | null
+          message?: string | null
         }
         Relationships: []
       }
 
-      // ── campaigns ──────────────────────────────────────────────────────────
-      campaigns: {
+      subscriptions: {
         Row: {
           id: string
-          user_id: string
-          name: string
-          type: "email" | "ads" | "social"
-          content: string | null
-          status: "draft" | "published"
+          email: string
+          plan: "essentiel" | "pro"
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          status: "active" | "canceled" | "past_due"
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          user_id: string
-          name: string
-          type: "email" | "ads" | "social"
-          content?: string | null
-          status?: "draft" | "published"
+          email: string
+          plan: "essentiel" | "pro"
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          status?: "active" | "canceled" | "past_due"
           created_at?: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          user_id?: string
-          name?: string
-          type?: "email" | "ads" | "social"
-          content?: string | null
-          status?: "draft" | "published"
-          created_at?: string
+          email?: string
+          plan?: "essentiel" | "pro"
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          status?: "active" | "canceled" | "past_due"
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "campaigns_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
 
@@ -107,13 +80,11 @@ export interface Database {
     }
 
     Enums: {
-      campaign_status: "draft" | "published"
-      campaign_type: "email" | "ads" | "social"
+      [_ in never]: never
     }
   }
 }
 
-// ─── Convenience row type aliases ─────────────────────────────────────────────
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"]
 

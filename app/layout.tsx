@@ -1,31 +1,28 @@
 import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 import "./globals.css"
-import { Providers } from "./providers"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: {
-    default: "FlowMarketing — Marketing Automation SaaS",
-    template: "%s | FlowMarketing",
-  },
+  title: "BoxManager — Gestion locative pour boxes de stockage",
   description:
-    "Créez des campagnes marketing performantes en quelques secondes. Gérez vos audiences, automatisez vos workflows et analysez vos résultats.",
-  keywords: ["marketing automation", "campagnes", "email marketing", "SaaS"],
+    "Gérez vos boxes de stockage en 15 minutes par mois. Contrats, loyers, relances — tout en un seul endroit. Simple. Fiable.",
   openGraph: {
+    title: "BoxManager — Gestion locative simplifiée",
+    description: "10, 20, 50 locataires. 15 minutes par mois.",
     type: "website",
-    title: "FlowMarketing — Marketing Automation SaaS",
-    description:
-      "Créez des campagnes marketing performantes en quelques secondes.",
   },
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="fr">
-      <body className="antialiased font-sans">
-        <Providers>{children}</Providers>
-      </body>
+    <html lang="fr" className="scroll-smooth">
+      <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   )
 }
