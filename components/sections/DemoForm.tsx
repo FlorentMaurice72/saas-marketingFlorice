@@ -18,6 +18,8 @@ const BOX_RANGES = [
   "Plus de 50 boxes",
 ]
 
+const FORMSPREE_URL = process.env.NEXT_PUBLIC_FORMSPREE_URL ?? ""
+
 export function DemoForm() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -25,8 +27,8 @@ export function DemoForm() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    company: "",
-    boxes_count: "",
+    phone: "",
+    nombre_boxes: "",
     message: "",
   })
 
@@ -40,18 +42,37 @@ export function DemoForm() {
     setError(null)
 
     try {
-      const res = await fetch("/api/demo", {
+      // 1. Save to Supabase via secure server route (SUPABASE_SERVICE_ROLE_KEY never exposed)
+      const supabaseRes = await fetch("/api/demo-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       })
-      const data = await res.json()
+      const supabaseData = await supabaseRes.json()
 
-      if (data.success) {
-        setSuccess(true)
-      } else {
-        setError(data.error ?? "Une erreur est survenue.")
+      if (!supabaseData.success) {
+        setError(supabaseData.error ?? "Une erreur est survenue.")
+        return
       }
+
+      // 2. Send to Formspree for email notification (fire-and-forget)
+      if (FORMSPREE_URL) {
+        fetch(FORMSPREE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            phone: form.phone || "—",
+            nombre_boxes: form.nombre_boxes || "—",
+            message: form.message || "—",
+          }),
+        }).catch(() => {
+          // Formspree failure is non-blocking — lead is already saved in Supabase
+        })
+      }
+
+      setSuccess(true)
     } catch {
       setError("Impossible d'envoyer votre demande. Réessayez.")
     } finally {
@@ -94,6 +115,7 @@ export function DemoForm() {
               </div>
             )}
 
+            {/* Row 1: Nom + Email */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -125,28 +147,30 @@ export function DemoForm() {
               </div>
             </div>
 
+            {/* Row 2: Téléphone + Nombre de boxes */}
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Société / Nom du site{" "}
+                  Téléphone{" "}
                   <span className="text-xs font-normal text-slate-400">(optionnel)</span>
                 </label>
                 <input
-                  type="text"
-                  value={form.company}
-                  onChange={(e) => set("company", e.target.value)}
-                  placeholder="Stockage Lyon Nord"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                  placeholder="06 12 34 56 78"
                   disabled={loading}
                   className={inputCls}
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Nombre de boxes
+                  Nombre de boxes{" "}
+                  <span className="text-xs font-normal text-slate-400">(optionnel)</span>
                 </label>
                 <select
-                  value={form.boxes_count}
-                  onChange={(e) => set("boxes_count", e.target.value)}
+                  value={form.nombre_boxes}
+                  onChange={(e) => set("nombre_boxes", e.target.value)}
                   disabled={loading}
                   className={inputCls}
                 >
@@ -158,6 +182,7 @@ export function DemoForm() {
               </div>
             </div>
 
+            {/* Row 3: Message */}
             <div className="mt-4">
               <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Message{" "}

@@ -14,8 +14,8 @@ export interface Database {
           id: string
           name: string
           email: string
-          company: string | null
-          boxes_count: string | null
+          phone: string | null
+          nombre_boxes: string | null
           message: string | null
           created_at: string
         }
@@ -23,16 +23,16 @@ export interface Database {
           id?: string
           name: string
           email: string
-          company?: string | null
-          boxes_count?: string | null
+          phone?: string | null
+          nombre_boxes?: string | null
           message?: string | null
           created_at?: string
         }
         Update: {
           name?: string
           email?: string
-          company?: string | null
-          boxes_count?: string | null
+          phone?: string | null
+          nombre_boxes?: string | null
           message?: string | null
         }
         Relationships: []
