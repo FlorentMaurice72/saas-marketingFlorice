@@ -28,7 +28,7 @@ const TRUST_BADGES = [
 ]
 
 export function Pricing() {
-  const [annual, setAnnual] = useState(true)
+  const [annual, setAnnual] = useState(false)
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -81,14 +81,15 @@ export function Pricing() {
           </span>
           <button
             onClick={() => setAnnual(!annual)}
+            aria-label="Basculer mensuel / annuel"
             className={cn(
-              "relative h-6 w-11 rounded-full border transition-colors",
-              annual ? "border-orange-500 bg-orange-500" : "border-zinc-600 bg-zinc-800"
+              "relative h-6 w-12 shrink-0 rounded-full transition-colors duration-200",
+              annual ? "bg-orange-500" : "bg-zinc-700"
             )}
           >
             <span className={cn(
-              "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
-              annual ? "translate-x-5" : "translate-x-0.5"
+              "absolute top-[3px] h-[18px] w-[18px] rounded-full bg-white shadow-md transition-transform duration-200",
+              annual ? "translate-x-[27px]" : "translate-x-[3px]"
             )} />
           </button>
           <span className={cn("text-sm", annual ? "text-zinc-100 font-medium" : "text-zinc-500")}>
