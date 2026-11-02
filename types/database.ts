@@ -96,6 +96,55 @@ export interface Database {
           },
         ]
       }
+
+      // ── automations ────────────────────────────────────────────────────────
+      automations: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          status: "draft" | "active" | "paused"
+          trigger_type: "contact_created" | "campaign_opened" | "campaign_clicked" | "tag_added" | "time_delay"
+          trigger_config: Json
+          steps: Json
+          contacts_enrolled: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          status?: "draft" | "active" | "paused"
+          trigger_type: "contact_created" | "campaign_opened" | "campaign_clicked" | "tag_added" | "time_delay"
+          trigger_config?: Json
+          steps?: Json
+          contacts_enrolled?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          status?: "draft" | "active" | "paused"
+          trigger_type?: "contact_created" | "campaign_opened" | "campaign_clicked" | "tag_added" | "time_delay"
+          trigger_config?: Json
+          steps?: Json
+          contacts_enrolled?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
 
     Views: {
@@ -109,6 +158,8 @@ export interface Database {
     Enums: {
       campaign_status: "draft" | "published"
       campaign_type: "email" | "ads" | "social"
+      automation_status: "draft" | "active" | "paused"
+      automation_trigger_type: "contact_created" | "campaign_opened" | "campaign_clicked" | "tag_added" | "time_delay"
     }
   }
 }

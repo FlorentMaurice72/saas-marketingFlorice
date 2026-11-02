@@ -12,6 +12,9 @@ create extension if not exists "uuid-ossp";
 create type campaign_type   as enum ('email', 'ads', 'social');
 create type campaign_status as enum ('draft', 'published');
 
+create type automation_status       as enum ('draft', 'active', 'paused');
+create type automation_trigger_type as enum ('contact_created', 'campaign_opened', 'campaign_clicked', 'tag_added', 'time_delay');
+
 -- ── users ─────────────────────────────────────────────────────────────────────
 -- Mirrors the in-memory store in lib/auth/users.ts.
 -- Populated on first sign-in when switching from in-memory → DB auth.
@@ -56,19 +59,45 @@ create trigger campaigns_updated_at
   before update on public.campaigns
   for each row execute procedure public.set_updated_at();
 
+-- ── automations ───────────────────────────────────────────────────────────────
+-- Each row is a workflow: one trigger + an ordered list of steps (JSONB).
+-- steps is an array of { id, type, delay_minutes?, config? }.
+
+create table if not exists public.automations (
+  id                uuid                     primary key default uuid_generate_v4(),
+  user_id           uuid                     not null references public.users(id) on delete cascade,
+  name              text                     not null,
+  status            automation_status        not null default 'draft',
+  trigger_type      automation_trigger_type  not null,
+  trigger_config    jsonb                    not null default '{}',
+  steps             jsonb                    not null default '[]',
+  contacts_enrolled integer                  not null default 0,
+  created_at        timestamptz              not null default now(),
+  updated_at        timestamptz              not null default now()
+);
+
+create trigger automations_updated_at
+  before update on public.automations
+  for each row execute procedure public.set_updated_at();
+
 -- ── Indexes ───────────────────────────────────────────────────────────────────
 
 -- Fast lookup of all campaigns for a user (used in getUserCampaigns)
 create index if not exists idx_campaigns_user_id
   on public.campaigns (user_id, created_at desc);
 
+-- Fast lookup of automations for a user
+create index if not exists idx_automations_user_id
+  on public.automations (user_id, created_at desc);
+
 -- ── Row Level Security ────────────────────────────────────────────────────────
 -- RLS is enabled on both tables.
 -- When using Supabase Auth (future): policies use auth.uid().
 -- Currently the application enforces isolation via service-role + user_id filter.
 
-alter table public.users     enable row level security;
-alter table public.campaigns enable row level security;
+alter table public.users       enable row level security;
+alter table public.campaigns   enable row level security;
+alter table public.automations enable row level security;
 
 -- users: service-role bypass (current) — no anon/user policies needed yet
 -- campaigns: service-role bypass (current)
